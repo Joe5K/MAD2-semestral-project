@@ -30,7 +30,7 @@ class RWSampler(Graph):
             for count in range(self.BATCH_SIZE):
                 node = self._process_node_and_get_next(node)
 
-            if self.nodes_number== last_size:
+            if self.nodes_number == last_size:
                 node = self._get_random_node()
                 #print(f"{self.__class__.__name__} is stuck on number {last_size}, choosing new random starting node {node}")
 
@@ -40,7 +40,13 @@ class RWSampler(Graph):
         return self._data_interface.get_random_node()
 
     def _process_node_and_get_next(self, node): # TODO upravit logiku a nepridavat susedov
+        next_node = self._get_next_node(node)
+        if node != next_node:
+            self._add_edge(node, next_node)
+        return next_node
+
+    def _get_next_node(self, node):
         neighbors = self._data_interface.get_neighbors(node)
-        self._nodes_adjs[node] = neighbors
         return random.choice(list(neighbors))
+
 

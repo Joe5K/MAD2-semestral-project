@@ -6,6 +6,14 @@ class Graph:
     def __init__(self):
         self._nodes_adjs: Dict[str, Set] = {}
 
+    def _add_edge(self, node1, node2):
+        if not self._nodes_adjs.get(node1):
+            self._nodes_adjs[node1] = set()
+        if not self._nodes_adjs.get(node2):
+            self._nodes_adjs[node2] = set()
+        self._nodes_adjs[node1].add(node2)
+        self._nodes_adjs[node2].add(node1)
+
     @property
     def nodes_number(self):
         return len(self._nodes_adjs)

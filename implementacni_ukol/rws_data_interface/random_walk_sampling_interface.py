@@ -14,12 +14,7 @@ class SampledGraph(Graph):
         with open(filename, "r") as reader:
             for line in reader.readlines():
                 node_a, node_b = line[:-1].split(separator)
-                if not self._nodes_adjs.get(node_a):
-                    self._nodes_adjs[node_a] = set()
-                if not self._nodes_adjs.get(node_b):
-                    self._nodes_adjs[node_b] = set()
-                self._nodes_adjs[node_a].add(node_b)
-                self._nodes_adjs[node_b].add(node_a)
+                self._add_edge(node_a, node_b)
 
     def get_random_node(self) -> str:
         return random.choice(list(self._nodes_adjs.keys()))

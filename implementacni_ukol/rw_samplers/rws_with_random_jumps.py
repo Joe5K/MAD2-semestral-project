@@ -10,11 +10,10 @@ class RWSRandomJumps(RWSampler):
 
         self._jump_probability = jump_probability
 
-    def _process_node_and_get_next(self, node):
-        next_node = super()._process_node_and_get_next(node)
+    def _get_next_node(self, node):
         if random.uniform(0, 1) < self._jump_probability:
-            next_node = self._get_random_scenario_node()
-        return next_node
+            return self._get_random_scenario_node()
+        return super()._process_node_and_get_next(node)
 
     def _get_random_scenario_node(self):
         return self._get_random_node()
