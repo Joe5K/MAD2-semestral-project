@@ -1,11 +1,11 @@
 import random
 
 from implementacni_ukol.rw_samplers.rwsampler import RWSampler
-from implementacni_ukol.rws_data_interface.random_walk_sampling_interface import RWDataInterface
+from implementacni_ukol.rws_data_interface.random_walk_sampling_interface import SampledGraph
 
 
 class RWSRandomJumps(RWSampler):
-    def __init__(self, expected_size: int, data: RWDataInterface, jump_probability: float = 0.15):
+    def __init__(self, expected_size: int, data: SampledGraph, jump_probability: float = 0.15):
         super().__init__(expected_size, data)
 
         self._jump_probability = jump_probability

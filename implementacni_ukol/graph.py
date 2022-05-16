@@ -59,34 +59,32 @@ class Graph:
 
     @staticmethod
     def normalize_cumulative_degree_distribution(first, second):
-        distance = len(first.normalized_cumulative_degree_distribution) / len(second.normalized_cumulative_degree_distribution)
+        lower, bigger = sorted([first, second], key=lambda x: len(x.normalized_cumulative_degree_distribution))
+        distance = len(bigger.normalized_cumulative_degree_distribution) / len(lower.normalized_cumulative_degree_distribution)
         if distance == 1:
             return first.normalized_cumulative_degree_distribution, second.normalized_cumulative_degree_distribution
 
-        if distance > 1:
-            normalizing = first
-            sample = second
-        else:
-            normalizing = second
-            sample = first
-            distance = 1/distance
-
         normalized_distribution = OrderedDict()
 
-        for degree, value in normalizing.normalized_cumulative_degree_distribution.items():
+        for degree, value in bigger.normalized_cumulative_degree_distribution.items():
             new_degree = round(degree/distance)
             if not normalized_distribution.get(new_degree):
-                normalized_distribution[degree] = list()
+                normalized_distribution[new_degree] = list()
             normalized_distribution[new_degree].append(value)
 
         for degree, value in normalized_distribution.items():
             normalized_distribution[degree] = sum(normalized_distribution[degree]) / len(normalized_distribution[degree])
 
-        return sample.normalized_cumulative_degree_distribution, normalized_distribution
+        return lower.normalized_cumulative_degree_distribution, normalized_distribution
 
 
     def kolmogorov_smirnov(self, other):
         a, b = self.normalize_cumulative_degree_distribution(self, other)
-        pass
-        #TODO dokoncit, teda cele prepisat, a uz nikdy nekodit unaveny
+        maximum = 0
 
+        for i, j in zip(a.values(), b.values()):
+            dist = abs(i-j)
+            if dist > maximum:
+                maximum = dist
+
+        return maximum

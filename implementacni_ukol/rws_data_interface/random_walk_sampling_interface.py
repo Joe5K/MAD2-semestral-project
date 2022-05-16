@@ -4,7 +4,7 @@ import sys
 from implementacni_ukol.graph import Graph
 
 
-class RWDataInterface(Graph):
+class SampledGraph(Graph):
     def __init__(self, filename: str, separator: str = " "):
         super().__init__()
 
