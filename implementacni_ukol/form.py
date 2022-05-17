@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 import tkinter as tk
+from tkinter import ttk
 from PIL import ImageTk, Image
 
 from implementacni_ukol.rw_samplers.rws_metropolis_hasting import RWSMetropolisHasting
@@ -28,6 +29,7 @@ class MenuFieldsEnum(Enum):
     METHOD = "Sample method"
     RANDOM_PROBABILITY = "Random probability"
 
+
 class MethodNames(Enum):
     RWS = "Random Walk Sampling"
     RWJ = "Random Walk Sampling With Random Jump"
@@ -35,28 +37,31 @@ class MethodNames(Enum):
     MHRW = "Metropolis-Hasting Random Walk Sampling"
 
 
-loaded_original_filename = None
-loaded_original_graph = None
+original_graph_data = {}
 insides = {}
+
 
 def generate_form():
     fields = *(i.value for i in MenuFieldsEnum), "break"
 
     def run_sampling(entries):
+        global original_graph_data
         filename = str(insides["filename"].get())
         method = str(insides["method"].get())
         size = int(entries[MenuFieldsEnum.SIZE.value].get())
         probability = float(entries[MenuFieldsEnum.RANDOM_PROBABILITY.value].get())
 
-        global loaded_original_filename, loaded_original_graph
-        if filename == loaded_original_filename and isinstance(loaded_original_graph, OriginalGraph):
-            original_graph = loaded_original_graph
+        if filename == original_graph_data.get("filename") and isinstance(original_graph_data.get("graph"),
+                                                                          OriginalGraph):
+            original_graph = original_graph_data.get("graph")
         else:
-            loaded_original_filename = filename
-            original_graph = loaded_original_graph = OriginalGraph(filename=f"data/{filename}")
+            original_graph_data["filename"] = filename
+            start = datetime.now()
+            original_graph_data["graph"] = original_graph = OriginalGraph(filename=f"data/{filename}")
+            end = datetime.now()
+            original_graph_data["time"] = end - start
 
         start = datetime.now()
-
         sampler = None
         if method == MethodNames.RWS.value:
             sampler = RWSampler(original_graph)
@@ -70,17 +75,34 @@ def generate_form():
         sampler.random_walk(size)
 
         end = datetime.now()
-        seconds = (end-start).total_seconds()
+        duration = end - start
+        times = [original_graph_data["time"], duration]
 
-        text.delete('1.0', tk.END)
-        text.insert("end", f"Took {seconds} sec. to complete.\n")
-        for graph in (original_graph, sampler):
+        for index, graph in enumerate((original_graph, sampler)):
             component_sizes = graph.get_component_sizes()
             number_of_components = len(list(filter(lambda x: x >= 2, component_sizes)))
-            text.insert("end", f"{graph.name}:\n{number_of_components} component{'s' if number_of_components>1 else ''}\nbiggest component size: {max(component_sizes)}\n{len(list(filter(lambda x: x == 2, component_sizes)))} isolated nodes.\n{graph.nodes_count} nodes and {graph.edges_count} edges\n\n")
+            number_of_isolated = len(list(filter(lambda x: x == 1, component_sizes)))
 
-        open_file("images\\cumulative_degree_distribution.png")
-        open_file("images\\degree_distribution.png")
+            for index2, data in enumerate((
+                    graph.nodes_count,
+                    graph.edges_count,
+                    graph.average_degree,
+                    graph.max_degree,
+                    number_of_components,
+                    number_of_isolated,
+                    max(component_sizes),
+                    "",
+                    times[index].total_seconds()
+            )):
+                table.set(index2, index + 1, round(data, 4) if not isinstance(data, str) else "")
+
+        image1 = Image.open("images\\degree_distribution.png")
+        image2 = Image.open("images\\cumulative_degree_distribution.png")
+        new_image = Image.new('RGB', (2 * image1.size[0], image1.size[1]), (255, 255, 255))
+        new_image.paste(image1, (0, 0))
+        new_image.paste(image2, (image1.size[0], 0))
+        new_image.show()
+
 
     def makeform(root, fields):
         entries = {}
@@ -125,15 +147,45 @@ def generate_form():
             entries[field] = ent
         return entries
 
-
     root = tk.Tk()
     ents = makeform(root, fields)
-    text = tk.Text(root, width=45, height=10)
-    text.pack(side=tk.LEFT, padx=5, pady=5)
-    b1 = tk.Button(root, text='Run',
-                command=(lambda e=ents: run_sampling(e)))
-    b1.pack(side=tk.LEFT, padx=0, pady=0)
+    frame = tk.Frame(root)
+    frame.pack()
+    table = ttk.Treeview(frame)
+    table["columns"] = ["Parameter", "Original", "Sample"]
+    table.column("#0", width=0, stretch=tk.NO)
+    table.column("Parameter", anchor=tk.W, width=170)
+    table.column("Original", anchor=tk.W, width=100)
+    table.column("Sample", anchor=tk.W, width=100)
+    table.heading("Parameter", text="Parameter", anchor=tk.W)
+    table.heading("Original", text="Original", anchor=tk.W)
+    table.heading("Sample", text="Sample", anchor=tk.W)
+    table.insert(parent='', index='end', iid=0, text='',
+                 values=('Number of nodes', '', ''))
+    table.insert(parent='', index='end', iid=1, text='',
+                 values=('Number of edges', '', ''))
+    table.insert(parent='', index='end', iid=2, text='',
+                 values=('Average degree', '', ''))
+    table.insert(parent='', index='end', iid=3, text='',
+                 values=('Maximm degree', '', ''))
+    table.insert(parent='', index='end', iid=4, text='',
+                 values=('Number of components', '', ''))
+    table.insert(parent='', index='end', iid=5, text='',
+                 values=('Number of isolated nodes', '', ''))
+    table.insert(parent='', index='end', iid=6, text='',
+                 values=('Biggest component size', '', ''))
+    table.insert(parent='', index='end', iid=7, text='',
+                 values=('', '', ''))
+    table.insert(parent='', index='end', iid=8, text='',
+                 values=('Processing time (s)', '', ''))
+
+    table.pack()
+
     b3 = tk.Button(root, text='Quit', command=root.quit)
-    b3.pack(side=tk.LEFT, padx=0, pady=0)
+    b3.pack(side=tk.RIGHT, padx=5, pady=5)
+
+    b1 = tk.Button(root, text='Run',
+                   command=(lambda e=ents: run_sampling(e)))
+    b1.pack(side=tk.RIGHT, padx=5, pady=5)
 
     return root
