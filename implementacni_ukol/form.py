@@ -1,4 +1,5 @@
 import subprocess, os, platform
+from datetime import datetime
 
 from enum import Enum
 
@@ -25,7 +26,7 @@ class MenuFieldsEnum(Enum):
     ORIGINAL_GRAPH_FILENAME = "Original graph filename"
     SIZE = "Sample size"
     METHOD = "Sample method"
-    RANDOM_PROBABILITY = "Random scenario probability"
+    RANDOM_PROBABILITY = "Random probability"
 
 class MethodNames(Enum):
     RWS = "Random Walk Sampling"
@@ -54,6 +55,8 @@ def generate_form():
             loaded_original_filename = filename
             original_graph = loaded_original_graph = OriginalGraph(filename=f"data/{filename}")
 
+        start = datetime.now()
+
         sampler = None
         if method == MethodNames.RWS.value:
             sampler = RWSampler(original_graph)
@@ -66,12 +69,15 @@ def generate_form():
 
         sampler.random_walk(size)
 
-        text.delete('1.0', tk.END)
+        end = datetime.now()
+        seconds = (end-start).total_seconds()
 
+        text.delete('1.0', tk.END)
+        text.insert("end", f"Took {seconds} sec. to complete.\n")
         for graph in (original_graph, sampler):
             component_sizes = graph.get_component_sizes()
             number_of_components = len(list(filter(lambda x: x >= 2, component_sizes)))
-            text.insert("end", f"{graph.name} has {number_of_components} component with the size at least 2, size of the biggest component is {max(component_sizes)}, graph contains {len(list(filter(lambda x: x == 2, component_sizes)))} isolated nodes.\n")
+            text.insert("end", f"{graph.name}:\n{number_of_components} component{'s' if number_of_components>1 else ''}\nbiggest component size: {max(component_sizes)}\n{len(list(filter(lambda x: x == 2, component_sizes)))} isolated nodes.\n{graph.nodes_count} nodes and {graph.edges_count} edges\n\n")
 
         open_file("images\\cumulative_degree_distribution.png")
         open_file("images\\degree_distribution.png")
@@ -81,17 +87,17 @@ def generate_form():
         for field in fields:
             if field == "break":
                 row = tk.Frame(root)
-                lab = tk.Label(row, width=53, text="_" * 100, anchor='w')
+                lab = tk.Label(row, width=60, text="_" * 100, anchor='w')
                 lab.pack(side=tk.LEFT)
                 row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
                 lab.pack(side=tk.LEFT)
                 continue
             row = tk.Frame(root)
-            lab = tk.Label(row, width=30, text=field, anchor='w')
+            lab = tk.Label(row, width=20, text=field, anchor='w')
             if field == MenuFieldsEnum.ORIGINAL_GRAPH_FILENAME.value:
                 value_inside = tk.StringVar(row)
-                value_inside.set("Select data")
                 options = os.listdir("data")
+                value_inside.set(options[0])
                 ent = tk.OptionMenu(row, value_inside, *options)
                 insides["filename"] = value_inside
             elif field == MenuFieldsEnum.SIZE.value:
@@ -99,13 +105,13 @@ def generate_form():
                 ent.insert(0, "2000")
             elif field == MenuFieldsEnum.METHOD.value:
                 value_inside = tk.StringVar(row)
-                value_inside.set("Select sampler")
                 options = [
                     MethodNames.RWS.value,
                     MethodNames.RWJ.value,
                     MethodNames.RWR.value,
                     MethodNames.MHRW.value,
                 ]
+                value_inside.set(options[0])
                 ent = tk.OptionMenu(row, value_inside, *options)
                 insides["method"] = value_inside
             elif field == MenuFieldsEnum.RANDOM_PROBABILITY.value:
@@ -115,14 +121,14 @@ def generate_form():
                 ent = tk.Entry(row)
             row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
             lab.pack(side=tk.LEFT)
-            ent.pack()#side=tk.RIGHT, expand=tk.YES, fill=tk.X)
+            ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
             entries[field] = ent
         return entries
 
 
     root = tk.Tk()
     ents = makeform(root, fields)
-    text = tk.Text(root, width=37, height=10)
+    text = tk.Text(root, width=45, height=10)
     text.pack(side=tk.LEFT, padx=5, pady=5)
     b1 = tk.Button(root, text='Run',
                 command=(lambda e=ents: run_sampling(e)))
