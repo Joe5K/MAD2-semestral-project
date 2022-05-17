@@ -1,19 +1,21 @@
 import random
 
 from implementacni_ukol.rw_samplers.rwsampler import RWSampler
-from implementacni_ukol.rws_data_interface.random_walk_sampling_interface import SampledGraph
+from implementacni_ukol.rws_original_graph.random_walk_sampling_original_graph import OriginalGraph
 
 
 class RWSRandomJumps(RWSampler):
-    def __init__(self, expected_size: int, data: SampledGraph, jump_probability: float = 0.15):
-        super().__init__(expected_size, data)
+    def __init__(self, data: OriginalGraph, random_scenario_probability: float = 0.15):
+        super().__init__(data)
 
-        self._jump_probability = jump_probability
+        self.random_scenario_probability = random_scenario_probability
 
-    def _get_next_node(self, node):
-        if random.uniform(0, 1) < self._jump_probability:
-            return self._get_random_scenario_node()
-        return super()._process_node_and_get_next(node)
+    @property
+    def name(self):
+        return "Random Jumps graph"
 
-    def _get_random_scenario_node(self):
-        return self._get_random_node()
+    def _should_connect(self, node, neighbor):
+        return random.uniform(0, 1) > self.random_scenario_probability
+
+    def _alternative_scenario(self):
+        return self._get_new_initial_node()
