@@ -1,12 +1,16 @@
 from collections import OrderedDict
-from math import floor, log
+from math import log
 from typing import Dict, Set
-import numpy
+
 import matplotlib.pyplot as plt
 
 class Graph:
     def __init__(self):
         self._nodes_adjs: Dict[str, Set] = {}
+
+    @property
+    def name(self):
+        return "Graph"
 
     def _add_node(self, node):
         if not self._nodes_adjs.get(node):
@@ -17,10 +21,6 @@ class Graph:
         self._add_node(node2)
         self._nodes_adjs[node1].add(node2)
         self._nodes_adjs[node2].add(node1)
-
-    @property
-    def name(self):
-        return "Graph"
 
     def get_component_sizes(self):
         class Visitor:
@@ -139,7 +139,8 @@ class Graph:
         plt.savefig(f"images/{parameter}.png")
         plt.clf()
 
-    ''' TODO maybe
+    # TODO maybe
+    '''
     def clustering_coefficients(self):
         coefficients = {}
         for node, neighbors in self._nodes_adjs.items():

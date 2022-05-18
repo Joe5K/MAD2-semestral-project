@@ -1,7 +1,7 @@
 import random
 import sys
 
-from implementacni_ukol.graph import Graph
+from implementacni_ukol.graph.graph import Graph
 
 
 class OriginalGraph(Graph):

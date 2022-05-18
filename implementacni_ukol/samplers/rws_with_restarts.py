@@ -1,7 +1,5 @@
-import random
-
-from implementacni_ukol.rw_samplers.rws_with_random_jumps import RWSRandomJumps
-from implementacni_ukol.rws_original_graph.random_walk_sampling_original_graph import OriginalGraph
+from implementacni_ukol.samplers.rws_with_random_jumps import RWSRandomJumps
+from implementacni_ukol.graph.original import OriginalGraph
 
 
 class RWSRestarts(RWSRandomJumps):
@@ -12,7 +10,7 @@ class RWSRestarts(RWSRandomJumps):
 
     @property
     def name(self):
-        return "Restarts graph"
+        return "RWR graph"
 
     def _get_new_initial_node(self):
         node = super()._get_new_initial_node()

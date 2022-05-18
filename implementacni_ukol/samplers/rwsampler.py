@@ -1,8 +1,7 @@
 import random
-from typing import Dict, Set
 
-from implementacni_ukol.graph import Graph
-from implementacni_ukol.rws_original_graph.random_walk_sampling_original_graph import OriginalGraph
+from implementacni_ukol.graph.graph import Graph
+from implementacni_ukol.graph.original import OriginalGraph
 
 
 class RWSampler(Graph):
@@ -14,7 +13,7 @@ class RWSampler(Graph):
 
     @property
     def name(self):
-        return "Sampled graph"
+        return "RWS graph"
 
     @property
     def node_adjs(self):

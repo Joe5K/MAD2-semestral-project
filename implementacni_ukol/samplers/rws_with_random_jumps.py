@@ -1,7 +1,7 @@
 import random
 
-from implementacni_ukol.rw_samplers.rwsampler import RWSampler
-from implementacni_ukol.rws_original_graph.random_walk_sampling_original_graph import OriginalGraph
+from implementacni_ukol.samplers.rwsampler import RWSampler
+from implementacni_ukol.graph.original import OriginalGraph
 
 
 class RWSRandomJumps(RWSampler):
@@ -12,7 +12,7 @@ class RWSRandomJumps(RWSampler):
 
     @property
     def name(self):
-        return "Random Jumps graph"
+        return "RWJ graph"
 
     def _should_connect(self, node, neighbor):
         return random.uniform(0, 1) > self.random_scenario_probability

@@ -14,9 +14,9 @@ original_graph = OriginalGraph(filename="data/data1.txt")
 
 samples = [
     RWSampler(original_graph),
-    #RWSRandomJumps(original_graph),
-    #RWSRestarts(original_graph),
-    #RWSMetropolisHasting(original_graph)
+    RWSRandomJumps(original_graph),
+    RWSRestarts(original_graph),
+    RWSMetropolisHasting(original_graph)
 ]
 
 expected_size = 2000

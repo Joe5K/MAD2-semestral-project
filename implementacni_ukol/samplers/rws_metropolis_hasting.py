@@ -1,6 +1,6 @@
 import random
 
-from implementacni_ukol.rw_samplers.rwsampler import RWSampler
+from implementacni_ukol.samplers.rwsampler import RWSampler
 
 
 class RWSMetropolisHasting(RWSampler):
@@ -8,7 +8,7 @@ class RWSMetropolisHasting(RWSampler):
 
     @property
     def name(self):
-        return "Metropolis-Hasting graph"
+        return "MHRW graph"
 
     def _should_connect(self, node, neighbor):
         probability = random.uniform(0, 1)
