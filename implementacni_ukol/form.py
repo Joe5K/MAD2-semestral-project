@@ -73,6 +73,8 @@ def generate_form():
             sampler = RWSMetropolisHasting(original_graph)
 
         sampler.random_walk(size)
+        sampler.compare(original_graph, parameter="degree_distribution", logaritmize=True)
+        sampler.compare(original_graph, parameter="cumulative_degree_distribution", logaritmize=True)
 
         end = datetime.now()
         duration = end - start

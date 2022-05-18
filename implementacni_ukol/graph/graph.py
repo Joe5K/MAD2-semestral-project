@@ -125,9 +125,9 @@ class Graph:
 
         return normalized
 
-    def compare(self, other, parameter: str = "cumulative_degree_distribution"):
-        normalized_sample = self.normalize(parameter)
-        normalized_other = other.normalize(parameter)
+    def compare(self, other, parameter: str = "cumulative_degree_distribution", logaritmize=True):
+        normalized_sample = self.normalize(parameter, logaritmize)
+        normalized_other = other.normalize(parameter, logaritmize)
 
         plt.plot(normalized_other.keys(), normalized_other.values(), color="red", label=other.name)
         plt.plot(normalized_sample.keys(), normalized_sample.values(), color="blue", label=self.name)
