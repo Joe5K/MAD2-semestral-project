@@ -32,7 +32,7 @@ class RWSampler(Graph):
                 if self._should_connect(node, neighbor):
                     self._add_edge(node, neighbor)
                     node = neighbor
-                elif alternative_node := self._alternative_scenario():
+                elif alternative_node := self._get_alternative_scenario_node():
                     self._add_node(alternative_node)
                     node = alternative_node
 
@@ -48,8 +48,8 @@ class RWSampler(Graph):
     def _should_connect(self, node, neighbor):
         return True
 
-    def _alternative_scenario(self):
-        return False
+    def _get_alternative_scenario_node(self):
+        return None
 
     def _get_new_initial_node(self):
         return self._data_interface.get_random_node()

@@ -17,5 +17,5 @@ class RWSRandomJumps(RWSampler):
     def _should_connect(self, node, neighbor):
         return random.uniform(0, 1) > self.random_scenario_probability
 
-    def _alternative_scenario(self):
+    def _get_alternative_scenario_node(self):
         return self._get_new_initial_node()

@@ -13,10 +13,8 @@ class Graph:
             self._nodes_adjs[node] = set()
 
     def _add_edge(self, node1, node2):
-        if not self._nodes_adjs.get(node1):
-            self._nodes_adjs[node1] = set()
-        if not self._nodes_adjs.get(node2):
-            self._nodes_adjs[node2] = set()
+        self._add_node(node1)
+        self._add_node(node2)
         self._nodes_adjs[node1].add(node2)
         self._nodes_adjs[node2].add(node1)
 
@@ -57,23 +55,6 @@ class Graph:
                 component_sizes.append(size)
 
         return component_sizes
-
-
-
-    def clustering_coefficients(self):
-        return 1
-        coefficients = {}
-        for node, neighbors in self._nodes_adjs.items():
-            neighborhood = len(neighbors)
-            neighbors = list(neighbors)
-            number_of_links = 0
-            for i in range(neighborhood):
-                for j in range(i):
-                    if neighbors[j] in self._nodes_adjs[neighbors[i]]:
-                        number_of_links += 1
-
-            coefficients[node] = 2*number_of_links/neighborhood*(neighborhood-1)
-        return coefficients
 
     @property
     def nodes_count(self):
@@ -158,53 +139,18 @@ class Graph:
         plt.savefig(f"images/{parameter}.png")
         plt.clf()
 
-    '''
-    @staticmethod
-    def normalize_x(sample, original):
-        length = len(sample)-1
-        delta = len(original)/length
+    ''' TODO maybe
+    def clustering_coefficients(self):
+        coefficients = {}
+        for node, neighbors in self._nodes_adjs.items():
+            neighborhood = len(neighbors)
+            neighbors = list(neighbors)
+            number_of_links = 0
+            for i in range(neighborhood):
+                for j in range(i):
+                    if neighbors[j] in self._nodes_adjs[neighbors[i]]:
+                        number_of_links += 1
 
-        normalized_original = OrderedDict()
-        for i in range(length+1):
-            normalized_original[i] = []
-
-        for number, value in enumerate(original):
-            index = round(number/delta)
-            normalized_original[index].append(value)
-
-        for index in range(length+1):
-            normalized_original[index] = sum(normalized_original[index]) / len(normalized_original[index])
-
-        return normalized_original
-        
-        @property
-        def normalized_cumulative_degree_distribution(self):
-            normalized_cumulative_deg = OrderedDict()
-
-            maximum_value = max(self.cumulative_degree_distribution.values())
-
-            for degree, value in self.cumulative_degree_distribution.items():
-                normalized_cumulative_deg[math.log(degree) if degree > 0 else degree] = value/maximum_value
-
-            return normalized_cumulative_deg
-
-        @staticmethod
-        def normalize_cumulative_degree_distribution(first, second):
-            lower, bigger = sorted([first, second], key=lambda x: len(x.normalized_cumulative_degree_distribution))
-            distance = len(bigger.normalized_cumulative_degree_distribution) / len(lower.normalized_cumulative_degree_distribution)
-            if distance == 1:
-                return first.normalized_cumulative_degree_distribution, second.normalized_cumulative_degree_distribution
-
-            normalized_distribution = OrderedDict()
-
-            for degree, value in bigger.normalized_cumulative_degree_distribution.items():
-                new_degree = round(degree/distance)
-                if not normalized_distribution.get(new_degree):
-                    normalized_distribution[new_degree] = list()
-                normalized_distribution[new_degree].append(value)
-
-            for degree, value in normalized_distribution.items():
-                normalized_distribution[degree] = sum(normalized_distribution[degree]) / len(normalized_distribution[degree])
-
-            return lower.normalized_cumulative_degree_distribution, normalized_distribution
+            coefficients[node] = 2*number_of_links/neighborhood*(neighborhood-1)
+        return coefficients
     '''

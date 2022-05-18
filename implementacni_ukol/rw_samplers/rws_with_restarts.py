@@ -19,6 +19,6 @@ class RWSRestarts(RWSRandomJumps):
         self._initial_node = node
         return node
 
-    def _alternative_scenario(self):
+    def _get_alternative_scenario_node(self):
         return self._initial_node
 
