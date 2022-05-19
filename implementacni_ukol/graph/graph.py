@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from math import log
-from typing import Dict, Set
+from typing import Dict, Set, Optional
 
 import matplotlib.pyplot as plt
 
@@ -16,26 +16,13 @@ class Graph:
         if not self._nodes_adjs.get(node):
             self._nodes_adjs[node] = set()
 
-    def _add_edge(self, node1, node2):
+    def add_edge(self, node1, node2):
         self._add_node(node1)
         self._add_node(node2)
         self._nodes_adjs[node1].add(node2)
         self._nodes_adjs[node2].add(node1)
 
     def get_component_sizes(self):
-        class Visitor:
-            def __init__(self):
-                self.cache = set()
-                self.counter = 0
-
-            def push(self, node):
-                self.counter += 1
-                self.cache.add(node)
-
-            def pop(self):
-                if self.cache:
-                    return self.cache.pop()
-
         nodes = self._nodes_adjs.keys()
         visited = {i: False for i in nodes}
         component_sizes = []
@@ -43,18 +30,39 @@ class Graph:
         for node in nodes:
             if not visited[node]:
                 size = 0
-                visitor = Visitor()
-                visitor.push(node)
-                while current_node := visitor.pop():
+                visitor = set()
+                visitor.add(node)
+                while visitor:
+                    current_node = visitor.pop()
                     size += 1
                     visited[current_node] = True
                     for neighbor in self._nodes_adjs[current_node]:
                         if not visited[neighbor]:
-                            visitor.push(neighbor)
+                            visitor.add(neighbor)
 
                 component_sizes.append(size)
 
         return component_sizes
+
+    # slow method
+    def get_clustering_coefficients(self):
+        coefficients = {}
+        for node, neighbors in self._nodes_adjs.items():
+            neighborhood = len(neighbors)
+            neighbors = list(neighbors)
+            number_of_links = 0
+            for i in range(neighborhood):
+                for j in range(i):
+                    if neighbors[j] in self._nodes_adjs[neighbors[i]]:
+                        number_of_links += 1
+
+            coefficients[node] = (2*number_of_links/(neighborhood*(neighborhood-1))) if neighborhood > 1 else 0
+            print(node)
+        return coefficients
+
+    @property
+    def density(self):
+        return self.edges_count/((self.nodes_count*(self.nodes_count-1))/2)
 
     @property
     def nodes_count(self):
@@ -84,39 +92,43 @@ class Graph:
     def max_degree(self):
         return max(self.degrees.values())
 
-    @property
-    def degree_distribution(self):
-        deg_distribution = OrderedDict()
+    def get_distribution(self, parameter: str, type_: str = None):
+        if not (data := getattr(self, parameter, None)):
+            if callable(getattr(self, f"get_{parameter}", None)) and not (data := getattr(self, f"get_{parameter}")()):
+                raise AttributeError(f"Pekne peklicko, ze? Ale {self.__class__.__name__} nevie nic o '{parameter}'")
 
-        for i in range(0, self.max_degree + 1):
-            deg_distribution[i] = 0
+        if isinstance(data, dict):
+            data = list(data.values())
 
-        for i in self.degrees.values():
-            deg_distribution[i] += 1
+        distribution = OrderedDict()
 
-        return deg_distribution
+        for i in range(0, max(data) + 1):
+            distribution[i] = 0
 
-    @property
-    def cumulative_degree_distribution(self):
-        cumulative_deg = OrderedDict()
-        for degree, count in self.degree_distribution.items():
-            cumulative_deg[degree] = 0 if degree == 0 else cumulative_deg.get(degree-1) + count
+        for i in data:
+            distribution[i] += 1
 
-        return cumulative_deg
+        if type_ == "cumulative":
+            cumulative_deg = OrderedDict()
+            for number, count in distribution.items():
+                cumulative_deg[number] = cumulative_deg.get(number - 1) + count if number != 0 else 0
 
-    def normalize(self, parameter_str: str, logaritmize=True):
-        parameter = getattr(self, parameter_str, "cumulative_degree_distribution")
+            return cumulative_deg
+        return distribution
+
+    def normalize_distribution(self, parameter, type_: Optional[str], logarithmic=True):
+        data = getattr(self, f"get_distribution")(parameter, type_)
 
         normalized = OrderedDict()
 
-        maximum_x = max(parameter.keys())
-        maximum_y = max(parameter.values())
+        maximum_x = max(data.keys())
+        maximum_y = max(data.values())
 
-        if logaritmize:
+        if logarithmic:
             maximum_x = log(maximum_x)
 
-        for key, value in parameter.items():
-            if logaritmize:
+        for key, value in data.items():
+            if logarithmic:
                 if key <= 0:
                     continue
                 key = log(key)
@@ -125,33 +137,16 @@ class Graph:
 
         return normalized
 
-    def compare(self, other, parameter: str = "cumulative_degree_distribution", logaritmize=True):
-        normalized_sample = self.normalize(parameter, logaritmize)
-        normalized_other = other.normalize(parameter, logaritmize)
+    def compare_distributions(self, other, parameter: str, type_: Optional[str] = None, logarithmic=True):
+        normalized_sample = self.normalize_distribution(parameter, type_, logarithmic)
+        normalized_other = other.normalize_distribution(parameter, type_, logarithmic)
 
         plt.plot(normalized_other.keys(), normalized_other.values(), color="red", label=other.name)
         plt.plot(normalized_sample.keys(), normalized_sample.values(), color="blue", label=self.name)
 
-        plt.title(f"Comparison of normalized {parameter.replace('_', ' ')}")
+        plt.title(f"Comparison of normalized {type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")
         plt.xlabel("Normalized log(x)")
         plt.ylabel("Normalized f(x)")
         plt.legend(loc="best")
-        plt.savefig(f"images/{parameter}.png")
+        plt.savefig(f"images/{type_ + '_' if type_ else ''}{parameter}_distribution.png")
         plt.clf()
-
-    # TODO maybe
-    '''
-    def clustering_coefficients(self):
-        coefficients = {}
-        for node, neighbors in self._nodes_adjs.items():
-            neighborhood = len(neighbors)
-            neighbors = list(neighbors)
-            number_of_links = 0
-            for i in range(neighborhood):
-                for j in range(i):
-                    if neighbors[j] in self._nodes_adjs[neighbors[i]]:
-                        number_of_links += 1
-
-            coefficients[node] = 2*number_of_links/neighborhood*(neighborhood-1)
-        return coefficients
-    '''

@@ -18,7 +18,7 @@ class OriginalGraph(Graph):
         with open(filename, "r") as reader:
             for line in reader.readlines():
                 node_a, node_b = line[:-1].split(separator)
-                self._add_edge(node_a, node_b)
+                self.add_edge(node_a, node_b)
 
     def get_random_node(self) -> str:
         return random.choice(list(self._nodes_adjs.keys()))
