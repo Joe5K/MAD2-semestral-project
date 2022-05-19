@@ -95,7 +95,7 @@ class Graph:
     def get_distribution(self, parameter: str, type_: str = None):
         if not (data := getattr(self, parameter, None)):
             if callable(getattr(self, f"get_{parameter}", None)) and not (data := getattr(self, f"get_{parameter}")()):
-                raise AttributeError(f"Pekne peklicko, ze? Ale {self.__class__.__name__} nevie nic o '{parameter}'")
+                raise AttributeError(f"Pekne peklicko, ze? Ale {self.__class__.__name__} nema property ani getter na '{parameter}'")  # noqa
 
         if isinstance(data, dict):
             data = list(data.values())
