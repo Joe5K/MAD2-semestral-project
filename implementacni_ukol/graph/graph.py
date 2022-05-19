@@ -1,12 +1,13 @@
 from collections import OrderedDict
 from math import log
-from typing import Dict, Set, Optional
+from typing import Dict, Set, Optional, Union, List, Iterable
 
 import matplotlib.pyplot as plt
 
 class Graph:
     def __init__(self):
         self._nodes_adjs: Dict[str, Set] = {}
+        self.graph_color = "red"
 
     @property
     def name(self):
@@ -116,9 +117,7 @@ class Graph:
             return cumulative_deg
         return distribution
 
-    def normalize_distribution(self, parameter, type_: Optional[str], logarithmic=True):
-        data = getattr(self, f"get_distribution")(parameter, type_)
-
+    def normalize_distribution(self, data, logarithmic=True):
         normalized = OrderedDict()
 
         maximum_x = max(data.keys())
@@ -137,16 +136,35 @@ class Graph:
 
         return normalized
 
-    def compare_distributions(self, other, parameter: str, type_: Optional[str] = None, logarithmic=True):
-        normalized_sample = self.normalize_distribution(parameter, type_, logarithmic)
-        normalized_other = other.normalize_distribution(parameter, type_, logarithmic)
+    def compare_distributions(self, other, parameter: str, type_: Optional[str] = None, normalize=True, logarithmic=True):
+        first_distribution = self.get_distribution(parameter, type_)
+        second_distribution = other.get_distribution(parameter, type_)
 
-        plt.plot(normalized_other.keys(), normalized_other.values(), color="red", label=other.name)
-        plt.plot(normalized_sample.keys(), normalized_sample.values(), color="blue", label=self.name)
+        if normalize:
+            first_distribution = self.normalize_distribution(first_distribution, logarithmic)
+            second_distribution = other.normalize_distribution(second_distribution, logarithmic)
 
-        plt.title(f"Comparison of normalized {type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")
-        plt.xlabel("Normalized log(x)")
-        plt.ylabel("Normalized f(x)")
+        plt.plot(second_distribution.keys(), second_distribution.values(), color=other.graph_color, label=other.name)
+        plt.plot(first_distribution.keys(), first_distribution.values(), color=self.graph_color, label=self.name)
+
+        plt.title(f"Comparison of {'Normalized ' if normalize else ''}{type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")  # noqa
+        plt.xlabel(f"{'Normalized ' if normalize else ''}{'log(x)' if logarithmic else 'x'}")
+        plt.ylabel(f"{'Normalized ' if normalize else ''}f(x)")
         plt.legend(loc="best")
         plt.savefig(f"images/{type_ + '_' if type_ else ''}{parameter}_distribution.png")
         plt.clf()
+
+    def plot_distribution(self, parameter, type_: Optional[str] = None):
+        distribution = self.get_distribution(parameter, type_)
+
+        filename = f"images/{self.name} {type_ + '_' if type_ else ''}{parameter}_distribution.png"
+        plt.plot(distribution.keys(), distribution.values(), color="red", label=self.name)
+        plt.title(f"{type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")  # noqa
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.legend(loc="best")
+
+        plt.savefig(filename)
+        plt.clf()
+
+        return filename

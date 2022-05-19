@@ -10,6 +10,7 @@ class RWSampler(Graph):
     def __init__(self, data: OriginalGraph):
         super().__init__()
         self._data_interface = data
+        self.graph_color = "blue"
 
     @property
     def name(self):

@@ -4,5 +4,5 @@ graph = MultiLayerGraph(filename="data/data.txt")
 
 layer = graph.layers["1"]
 
-print(layer.get_distribution("component_sizes"))
-print(layer.get_distribution("component_sizes", "cumulative"))
+layer.plot_distribution("component_sizes")
+layer.plot_distribution("component_sizes", "cumulative")
