@@ -140,6 +140,7 @@ class Graph:
         first_distribution = self.get_distribution(parameter, type_)
         second_distribution = other.get_distribution(parameter, type_)
 
+        filename = f"images/{type_ + '_' if type_ else ''}{parameter}_distribution.png"
         if normalize:
             first_distribution = self.normalize_distribution(first_distribution, logarithmic)
             second_distribution = other.normalize_distribution(second_distribution, logarithmic)
@@ -151,8 +152,10 @@ class Graph:
         plt.xlabel(f"{'Normalized ' if normalize else ''}{'log(x)' if logarithmic else 'x'}")
         plt.ylabel(f"{'Normalized ' if normalize else ''}f(x)")
         plt.legend(loc="best")
-        plt.savefig(f"images/{type_ + '_' if type_ else ''}{parameter}_distribution.png")
+        plt.savefig(filename)
         plt.clf()
+
+        return filename
 
     def plot_distribution(self, parameter, type_: Optional[str] = None):
         distribution = self.get_distribution(parameter, type_)
@@ -163,7 +166,6 @@ class Graph:
         plt.xlabel("x")
         plt.ylabel("f(x)")
         plt.legend(loc="best")
-
         plt.savefig(filename)
         plt.clf()
 
