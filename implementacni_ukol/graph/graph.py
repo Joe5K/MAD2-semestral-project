@@ -68,8 +68,11 @@ class Graph:
                         number_of_links += 1
 
             coefficients[node] = (2*number_of_links/(neighborhood*(neighborhood-1))) if neighborhood > 1 else 0
-            print(node)
         return coefficients
+
+    def get_average_clustering_coefficient(self):
+        cc = self.get_clustering_coefficients()
+        return sum(cc.values())/len(cc)
 
     @property
     def density(self):
