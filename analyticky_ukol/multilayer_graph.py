@@ -19,4 +19,4 @@ class MultiLayerGraph:
 
     def save_graph(self, folder):
         for name, graph in self.layers.items():
-            graph.save_to_file(f"{folder}/{name}.txt", separator=";")
+            graph.save_to_file(f"{folder}/{name}.csv", separator=";")

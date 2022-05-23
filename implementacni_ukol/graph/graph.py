@@ -167,11 +167,11 @@ class Graph:
 
         return filename
 
-    def plot_distribution(self, parameter, type_: Optional[str] = None):
+    def plot_distribution(self, name, parameter, type_: Optional[str] = None):
         distribution = self.get_distribution(parameter, type_)
 
-        filename = f"images/{self.name} {type_ + '_' if type_ else ''}{parameter}_distribution.png"
-        plt.plot(distribution.keys(), distribution.values(), color="red", label=self.name)
+        filename = f"images/{name} {type_ + '_' if type_ else ''}{parameter}_distribution.png"
+        plt.plot(distribution.keys(), distribution.values(), color="red", label=name)
         plt.title(f"{type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")  # noqa
         plt.xlabel("x")
         plt.ylabel("f(x)")
