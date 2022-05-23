@@ -1,3 +1,4 @@
+import sys
 from collections import OrderedDict
 from math import log
 from typing import Dict, Set, Optional, Union, List, Iterable
@@ -22,6 +23,9 @@ class Graph:
         self._add_node(node2)
         self._nodes_adjs[node1].add(node2)
         self._nodes_adjs[node2].add(node1)
+
+    def get_neighbors(self, node):
+        return self._nodes_adjs.get(node, [])
 
     def save_to_file(self, filename: str, separator=" "):
         out = ""
@@ -90,21 +94,24 @@ class Graph:
     def edges_nodes_ratio(self):
         return self.edges_count / self.nodes_count
 
+    def node_degree(self, node):
+        return len(self._nodes_adjs.get(node, []))
+
     @property
-    def degrees(self):
+    def degree(self):
         return {node: len(neighbors) for node, neighbors in self._nodes_adjs.items()}
 
     @property
     def average_degree(self):
-        return sum(self.degrees.values()) / self.nodes_count
+        return sum(self.degree.values()) / self.nodes_count
 
     @property
     def min_degree(self):
-        return min(self.degrees.values())
+        return min(self.degree.values())
 
     @property
     def max_degree(self):
-        return max(self.degrees.values())
+        return max(self.degree.values())
 
     def get_distribution(self, parameter: str, type_: str = None):
         if not (data := getattr(self, parameter, None)):
@@ -175,9 +182,9 @@ class Graph:
 
         filename = f"images/{name} {type_ + '_' if type_ else ''}{parameter}_distribution.png"
         plt.plot(distribution.keys(), distribution.values(), color="red", label=name)
-        plt.title(f"{type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution")  # noqa
-        plt.xlabel("x")
-        plt.ylabel("f(x)")
+        plt.title(f"{type_ + ' ' if type_ else ''}{parameter.replace('_', ' ')} distribution".capitalize())  # noqa
+        plt.xlabel((parameter if parameter[-1] != "s" else parameter[:-1]).replace("_", " ").capitalize())
+        plt.ylabel("Count")
         plt.legend(loc="best")
         plt.savefig(filename)
         plt.clf()

@@ -73,8 +73,8 @@ def generate_form():
             sampler = RWSMetropolisHasting(original_graph)
 
         sampler.random_walk(size)
-        sampler.compare_distributions(original_graph, parameter="degrees")
-        sampler.compare_distributions(original_graph, parameter="degrees", type_="cumulative")
+        sampler.compare_distributions(original_graph, parameter="degree")
+        sampler.compare_distributions(original_graph, parameter="degree", type_="cumulative")
 
         end = datetime.now()
         duration = end - start
@@ -98,8 +98,8 @@ def generate_form():
             )):
                 table.set(index2, index + 1, round(data, 4) if not isinstance(data, str) else "")
 
-        image1 = Image.open(r"images/degrees_distribution.png")
-        image2 = Image.open(r"images/cumulative_degrees_distribution.png")
+        image1 = Image.open(r"images/degree_distribution.png")
+        image2 = Image.open(r"images/cumulative_degree_distribution.png")
         new_image = Image.new('RGB', (2 * image1.size[0], image1.size[1]), (255, 255, 255))
         new_image.paste(image1, (0, 0))
         new_image.paste(image2, (image1.size[0], 0))

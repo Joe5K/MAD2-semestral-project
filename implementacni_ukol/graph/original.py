@@ -22,10 +22,3 @@ class OriginalGraph(Graph):
 
     def get_random_node(self) -> str:
         return random.choice(list(self._nodes_adjs.keys()))
-
-    def get_neighbors(self, node):
-        try:
-            return self._nodes_adjs[node]
-        except KeyError:
-            print(f"{self.__name__}.get_neighbors({node}): Invalid node number. Program halted.")
-            sys.exit(1)
