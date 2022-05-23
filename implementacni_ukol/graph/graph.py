@@ -23,6 +23,16 @@ class Graph:
         self._nodes_adjs[node1].add(node2)
         self._nodes_adjs[node2].add(node1)
 
+    def save_to_file(self, filename: str, separator=" "):
+        out = ""
+        for node, neighbors in self._nodes_adjs.items():
+            for neighbor in neighbors:
+                if int(node) < int(neighbor):
+                    out += f"{node}{separator}{neighbor}\n"
+
+        with open(filename, "w") as writer:
+            writer.write(out)
+
     def get_component_sizes(self):
         nodes = self._nodes_adjs.keys()
         visited = {i: False for i in nodes}

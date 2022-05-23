@@ -16,3 +16,7 @@ class MultiLayerGraph:
                 if not self.layers.get(layer):
                     self.layers[layer] = Graph()
                 self.layers[layer].add_edge(node_a, node_b)
+
+    def save_graph(self, folder):
+        for name, graph in self.layers.items():
+            graph.save_to_file(f"{folder}/{name}.txt", separator=";")
